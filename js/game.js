@@ -291,8 +291,6 @@ class Game {
     const wantsRun = !!(this.keys['ShiftLeft'] || this.keys['ShiftRight']);
 
     const scene = this.world.currentScene;
-    const prevSubWasArea = this.sub === 'area';
-
     // Travel
     if (this.world.traveling) {
       const arrived = this.world.updateTravel(dt);
@@ -1089,7 +1087,7 @@ class Game {
     const ctx = this.ctx;
     const x = 12, startY = 75;
     this.notifs.forEach((n, i) => {
-      const alpha = Math.min(1, n.timer / 0.5) * Math.min(1, (n.timer - 0) * 2);
+      const alpha = Math.min(1, n.timer * 2);
       ctx.globalAlpha = Math.max(0, alpha);
       ctx.font = '12px sans-serif'; ctx.fillStyle = n.color;
       ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
