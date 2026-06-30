@@ -62,7 +62,8 @@ class VirtualJoystick {
     }
   }
 
-  // Keyboard support
+  // Keyboard support — only overrides dx/dy when a key is pressed,
+  // or when no touch is active (prevents zeroing out live touch input).
   setFromKeys(keys) {
     let x = 0, y = 0;
     if (keys['ArrowLeft']  || keys['KeyA']) x -= 1;
@@ -72,9 +73,11 @@ class VirtualJoystick {
     if (x !== 0 || y !== 0) {
       const len = Math.hypot(x, y);
       this.dx = x / len; this.dy = y / len;
-    } else {
+    } else if (!this.active) {
+      // Touch is not active → safe to zero out (no touch input to clobber)
       this.dx = 0; this.dy = 0;
     }
+    // If touch IS active and no key is pressed, leave dx/dy as-is (touch owns it)
   }
 
   draw(ctx) {
@@ -215,7 +218,7 @@ class AreaScene {
       ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(cw, gy); ctx.stroke();
     }
     // area boundary
-    const bx1 = -cx, by1 = -cy, bx2 = AREA_W - cx, by2 = AREA_H - cy;
+    const bx1 = -cx, by1 = -cy;
     ctx.strokeStyle = 'rgba(255,255,255,0.15)'; ctx.lineWidth = 3;
     ctx.strokeRect(bx1, by1, AREA_W, AREA_H);
     // night overlay
@@ -249,7 +252,7 @@ class AreaScene {
   }
 
   drawNightVignette(ctx, px, py, cx, cy, cw, ch, hasTorch) {
-    if (!px) return;
+    if (px == null) return;
     const sx = px - cx, sy = py - cy;
     const radius = hasTorch ? 350 : 180;
     const grad = ctx.createRadialGradient(sx, sy, 0, sx, sy, radius);
